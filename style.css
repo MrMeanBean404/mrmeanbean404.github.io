@@ -1,0 +1,43 @@
+body {
+    margin: 0;
+    padding: 20px;
+    font-family: monospace;
+    font-size: 16px;
+    background: #fff;
+    color: #111;
+}
+
+table {
+    width: 100%;
+    max-width: 700px;
+    margin: 0 auto;
+    border-collapse: collapse;
+}
+
+a {
+    color: #0645ad;
+}
+
+a:visited {
+    color: #551a8b;
+}
+
+h1 {
+    font-size: 1.3em;
+    margin: 0 0 16px 0;
+}
+
+.directory-tree {
+    list-style: none;
+    padding-left: 18px;
+    margin: 0;
+}
+
+.directory-tree .root {
+    padding-left: 0;
+    font-weight: bold;
+}
+
+.dir {
+    color: #b34700;
+}
