@@ -1,0 +1,51 @@
+
+
+<!DOCTYPE html>
+<html>
+<body>
+  <h2>Custom About:Blank Loader</h2>
+  <p>Enter a URL and click Launch Site</p>
+  
+  <input type="text" id="linktoopen" placeholder="Enter link here">
+  <input type="text" id="tabtitle" placeholder="Enter tab title here">
+  <input type="text" id="tabicon" placeholder="Enter tab icon here">
+  <button onclick="launchSite()">Launch Site</button>
+  
+
+  <script>
+    function launchSite() {
+      var win = window.open('about:blank', '_blank');
+
+      if (win) {
+        // --- CUSTOMIZATION OPTIONS ---
+        const targetURL = document.getElementById("linktoopen").value
+        var tabTitle = document.getElementById("tabtitle").value
+        var tabIcon = document.getElementById("tabicon").value
+        
+        // Apply Title and Icon
+        win.document.title = tabTitle;
+        var link = win.document.createElement('link');
+        link.rel = 'icon';
+        link.href = tabIcon;
+        win.document.head.appendChild(link);
+
+        // Set up the page layout
+        win.document.body.style.margin = '0';
+        win.document.body.style.height = '100vh';
+        win.document.body.style.overflow = 'hidden';
+
+        // Create the iframe
+        var iframe = win.document.createElement('iframe');
+        iframe.style.border = 'none';
+        iframe.style.width = '100%';
+        iframe.style.height = '100%';
+        iframe.src = targetURL;
+
+        win.document.body.appendChild(iframe);
+      } else {
+        alert("Please allow pop-ups for this to work!");
+      }
+    }
+  </script>
+</body>
+</html>
