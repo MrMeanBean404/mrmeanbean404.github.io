@@ -1,64 +1,58 @@
+@font-face {
+    font-family: typewriter;
+    src: url(./assets/typewriter.woff2);
+}
+
+:root {
+    --main-width: min(calc(120ch + 2em), 100%);
+}
+
+html {
+    font-family: typewriter, 'Courier New', Courier, monospace;
+    background-color: black;
+    overflow-y: scroll;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+html::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+}
+
 body {
     margin: 0;
-    padding: 30px 20px;
-    font-family: 'Courier New', Courier, monospace;
-    font-size: 15px;
-    background: #111111;
-    color: #cccccc;
+    color: white;
 }
 
-table {
-    width: 100%;
-    max-width: 700px;
-    margin: 0 auto;
-    border-collapse: collapse;
-}
-
-a {
-    color: #FE019A;
+a, a:hover, a:focus, a:active {
     text-decoration: none;
+    color: inherit;
 }
 
-a:hover {
-    text-decoration: underline;
-}
-
-a:visited {
-    color: #c2017a;
+main {
+    max-width: var(--main-width);
+    margin: 0 auto;
+    padding: 2em 1em;
 }
 
 h1 {
-    font-size: 1.2em;
+    font-size: 1.3em;
     font-weight: normal;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin: 0 0 20px 0;
-    color: #eeeeee;
-    border-bottom: 1px solid #333333;
-    padding-bottom: 10px;
+    margin: 0 0 1em 0;
 }
 
 .directory-tree {
     list-style: none;
-    padding-left: 20px;
+    padding-left: 2ch;
     margin: 0;
-    line-height: 1.7;
+    line-height: 1.8;
 }
 
 .directory-tree .root {
     padding-left: 0;
-    color: #eeeeee;
-}
-
-.directory-tree .root a {
-    color: #eeeeee;
-    font-weight: bold;
 }
 
 .dir {
     color: #F7524A;
-}
-
-.dir::before {
-    content: "";
 }
