@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>New Tab</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0a0f;
+      --surface: #13131a;
+      --border: #2a2a3a;
+      --accent: #7c6fff;
+      --accent-glow: rgba(124, 111, 255, 0.3);
+      --text: #e8e8f0;
+      --muted: #6b6b80;
+      --danger: #ff6b6b;
+      --warning: #f59e0b;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Syne', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(var(--border) 1px, transparent 1px),
+        linear-gradient(90deg, var(--border) 1px, transparent 1px);
+      background-size: 40px 40px;
+      opacity: 0.3;
+      z-index: 0;
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      top: -40%;
+      left: -20%;
+      width: 80%;
+      height: 80%;
+      background: radial-gradient(ellipse, var(--accent-glow) 0%, transparent 65%);
+      z-index: 0;
+      animation: drift 12s ease-in-out infinite alternate;
+    }
+
+    @keyframes drift {
+      from { transform: translate(0, 0); }
+      to   { transform: translate(15%, 10%); }
+    }
+
+    #ui-container {
+      position: relative;
+      z-index: 1;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 3rem 2.5rem;
+      width: 100%;
+      max-width: 560px;
+      box-shadow: 0 0 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(124,111,255,0.08);
+      animation: fadeUp 0.6s ease both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .tag {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.75rem;
+    }
+
+    h2 {
+      font-size: 2rem;
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 0.4rem;
+      background: linear-gradient(135deg, #fff 40%, var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-bottom: 2rem;
+    }
+
+    .model-wrap { margin-bottom: 1rem; }
+
+    .model-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.4rem;
+      display: block;
+    }
+
+    select {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.75rem 1rem;
+      color: var(--text);
+      font-family: 'Syne', sans-serif;
+      font-size: 0.9rem;
+      outline: none;
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b6b80' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 1rem center;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    .cutoff-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      margin-top: 0.45rem;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.68rem;
+      color: var(--muted);
+      min-height: 1.2rem;
+      transition: opacity 0.2s;
+    }
+
+    .cutoff-badge.loading { opacity: 0.5; }
+
+    .cutoff-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .cutoff-dot.spinning { animation: pulse 1s ease-in-out infinite; }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.2; }
+    }
+
+    .input-wrap {
+      position: relative;
+      margin-bottom: 1rem;
+      margin-top: 1.25rem;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.85rem 1rem;
+      color: var(--text);
+      font-family: 'Syne', sans-serif;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    input[type="text"]:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    input[type="text"]::placeholder { color: var(--muted); }
+
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 1.5rem;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    input[type="checkbox"] {
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      background: var(--bg);
+      cursor: pointer;
+      position: relative;
+      flex-shrink: 0;
+      transition: background 0.15s, border-color 0.15s;
+    }
+
+    input[type="checkbox"]:checked {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+
+    input[type="checkbox"]:checked::after {
+      content: '✓';
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      color: white;
+      font-weight: bold;
+    }
+
+    .checkbox-row label {
+      font-size: 0.85rem;
+      color: var(--muted);
+      cursor: pointer;
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 0.75rem;
+      margin-bottom: 1.75rem;
+    }
+
+    button {
+      flex: 1;
+      padding: 0.8rem 1.2rem;
+      border: none;
+      border-radius: 10px;
+      font-family: 'Syne', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.1s, box-shadow 0.2s, opacity 0.2s;
+    }
+
+    button:active { transform: scale(0.97); }
+
+    #ask-btn {
+      background: var(--accent);
+      color: #fff;
+      box-shadow: 0 4px 20px var(--accent-glow);
+    }
+
+    #ask-btn:hover { box-shadow: 0 4px 30px rgba(124,111,255,0.5); }
+    #ask-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    #clear-btn {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--border);
+    }
+
+    #clear-btn:hover { color: var(--danger); border-color: var(--danger); }
+
+    .answer-box {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem 1.1rem;
+      min-height: 60px;
+      font-size: 0.9rem;
+      line-height: 1.7;
+      color: var(--text);
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .answer-box.visible { display: block; }
+
+    .answer-box.loading {
+      color: var(--muted);
+      font-family: 'Space Mono', monospace;
+      font-size: 0.8rem;
+    }
+
+    .answer-box.error { color: var(--danger); border-color: rgba(255,107,107,0.3); }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .memory-indicator {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      margin-top: 1rem;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--muted);
+    }
+    
+    .funny-label {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      margin-top: 1rem;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--muted);
+    }
+
+    .memory-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--muted);
+      transition: background 0.3s;
+    }
+
+    .memory-dot.active { background: #4ade80; box-shadow: 0 0 6px #4ade80; }
+
+    /* Popup */
+    .popup-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(4px);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: fadeIn 0.2s ease;
+    }
+
+    .popup-overlay.hidden { display: none; }
+
+    .popup {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-top: 2px solid var(--warning);
+      border-radius: 14px;
+      padding: 2rem;
+      max-width: 360px;
+      width: 90%;
+      box-shadow: 0 0 60px rgba(0,0,0,0.8);
+      animation: fadeUp 0.25s ease both;
+    }
+
+    .popup-icon { font-size: 1.8rem; margin-bottom: 0.75rem; }
+
+    .popup h3 {
+      font-size: 1.1rem;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+      color: var(--warning);
+    }
+
+    .popup p {
+      font-size: 0.85rem;
+      color: var(--muted);
+      line-height: 1.6;
+      margin-bottom: 1.5rem;
+    }
+
+    .popup-btns { display: flex; gap: 0.6rem; }
+    .popup-btns button { font-size: 0.85rem; padding: 0.65rem 1rem; }
+
+    #popup-wipe { background: var(--danger); color: #fff; flex: 1; }
+
+    #popup-keep {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      flex: 1;
+    }
+
+    #popup-keep:hover { color: var(--text); border-color: var(--muted); }
+  </style>
+</head>
+<body>
+
+  <div class="popup-overlay hidden" id="popup-overlay">
+    <div class="popup">
+      <div class="popup-icon">⚠️</div>
+      <h3>Model Changed</h3>
+      <p>You switched to a different model. It is recommended to clear memory to prevent the AI from becoming confused.</p>
+      <div class="popup-btns">
+        <button id="popup-wipe" onclick="confirmWipe()">Clear Memory</button>
+        <button id="popup-keep" onclick="dismissPopup()">Keep Memory</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="ui-container">
+    <div class="tag">// AI Interface</div>
+    <h2>Desmond AI</h2>
+    <p class="subtitle">Ask anything. Memory persists between questions.</p>
+
+    <div class="model-wrap">
+      <span class="model-label">Model</span>
+      <select id="model-select" onchange="onModelChange()">
+        <option value="meta-llama/Meta-Llama-3-8B-Instruct">Llama 3 8B — Fast</option>
+        <option value="meta-llama/Llama-3.1-70B-Instruct">Llama 3.1 70B — Smart</option>
+        <option value="Qwen/Qwen2.5-Coder-32B-Instruct">Qwen 2.5 Coder — Code</option>
+
+      </select>
+      <div class="cutoff-badge loading" id="cutoff-badge">
+        <div class="cutoff-dot spinning" id="cutoff-dot"></div>
+        <span id="cutoff-text">fetching knowledge cutoff...</span>
+      </div>
+    </div>
+
+    <div class="input-wrap">
+      <input type="text" id="question" placeholder="What would you like to know?" autocomplete="off">
+    </div>
+
+    <div class="checkbox-row">
+      <input type="checkbox" id="onlyanswer">
+      <label for="onlyanswer">Only respond with the answer</label>
+    </div>
+    <div class="btn-row">
+      <button id="ask-btn">Ask Question</button>
+      <button id="clear-btn">Clear</button>
+      <button id="stealth-btn" onclick="openStealth()" style="background: transparent; color: var(--muted); border: 1px solid var(--border);">Open in about:blank</button>
+    </div>
+    <div class="answer-box" id="answer"></div>
+
+    <div class="memory-indicator">
+      <div class="memory-dot" id="memory-dot"></div>
+      <span id="memory-label">No memory yet</span>
+    </div>
+    
+    <span class="funny-label" id="ram-usage"></span>
+    <span class="funny-label" id="water-usage"></span>
+  </div>
+
+  <script>
+    let history = [];
+    let uses = 0
+    const cutoffCache = {};
+
+    async function fetchCutoff(model) {
+      if (cutoffCache[model]) return cutoffCache[model];
+      try {
+        const response = await fetch("https://vercel-ai-requestor.vercel.app/send", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            message: "What is your training data knowledge cutoff date? Reply with only the date in the format: 'Knowledge cutoff: Month Year'. Nothing else.",
+            justanswer: true,
+            history: [],
+            model
+          })
+        });
+        if (!response.ok) return "Cutoff unknown";
+        const data = await response.json();
+        const reply = data.reply.trim();
+        cutoffCache[model] = reply;
+        return reply;
+      } catch {
+        return "Cutoff unavailable";
+      }
+    }
+
+    async function updateCutoffBadge(model) {
+      const badge = document.getElementById("cutoff-badge");
+      const dot = document.getElementById("cutoff-dot");
+      const text = document.getElementById("cutoff-text");
+
+      badge.classList.add("loading");
+      dot.classList.add("spinning");
+      text.textContent = "fetching knowledge cutoff...";
+
+      const cutoff = await fetchCutoff(model);
+
+      dot.classList.remove("spinning");
+      badge.classList.remove("loading");
+      text.textContent = cutoff;
+    }
+
+    function onModelChange() {
+      const model = document.getElementById("model-select").value;
+      if (history.length > 0) {
+        document.getElementById("popup-overlay").classList.remove("hidden");
+      }
+      updateCutoffBadge(model);
+    }
+
+    function confirmWipe() {
+      history = [];
+      updateMemoryIndicator();
+      const answerEl = document.getElementById("answer");
+      answerEl.className = "answer-box visible";
+      answerEl.textContent = "Memory cleared.";
+      dismissPopup();
+    }
+
+    function dismissPopup() {
+      document.getElementById("popup-overlay").classList.add("hidden");
+    }
+
+    function updateMemoryIndicator() {
+      const dot = document.getElementById("memory-dot");
+      const label = document.getElementById("memory-label");
+      
+      
+      const turns = history.length / 2;
+      if (turns === 0) {
+        dot.classList.remove("active");
+        label.textContent = "No memory yet";
+      } else {
+        dot.classList.add("active");
+        label.textContent = `${turns} exchange${turns !== 1 ? "s" : ""} in memory`;
+      }
+    }
+
+    async function askQuestion() {
+      const message = document.getElementById("question").value.trim();
+      const justanswer = document.getElementById("onlyanswer").checked;
+      const model = document.getElementById("model-select").value;
+      const answerEl = document.getElementById("answer");
+      const askBtn = document.getElementById("ask-btn");
+      
+      const ram = document.getElementById("ram-usage");
+      const water = document.getElementById("water-usage");
+
+      if (!message) return;
+
+      answerEl.className = "answer-box visible loading";
+      answerEl.textContent = "thinking...";
+      askBtn.disabled = true;
+      uses += 1
+
+      try {
+        console.log("Sending history:", history);
+        const response = await fetch("https://vercel-ai-requestor.vercel.app/send", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message, justanswer, history, model })
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          answerEl.className = "answer-box visible error";
+          answerEl.textContent = `Error ${response.status}: ${error.detail}`;
+          return;
+        }
+
+        const data = await response.json();
+        history = data.history;
+        console.log("Response history:", history);
+        
+
+        answerEl.className = "answer-box visible";
+        answerEl.textContent = data.reply;
+        
+        ram.textContent = `RAM prices increased by $${(Math.floor((1000*uses)*(Math.random()*1000))).toLocaleString()}`
+        water.textContent = `${(Math.floor((1000*uses)*(Math.random()*500))).toLocaleString()} gallons of water used`
+        
+        updateMemoryIndicator();
+
+      } catch (err) {
+        answerEl.className = "answer-box visible error";
+        answerEl.textContent = `Request failed: ${err.message}`;
+      } finally {
+        askBtn.disabled = false;
+      }
+    }
+
+    function clearMemory() {
+      history = [];
+      const answerEl = document.getElementById("answer");
+      answerEl.className = "answer-box visible";
+      answerEl.textContent = "Memory cleared.";
+      updateMemoryIndicator();
+    }
+    function openStealth() {
+        let fullHTML = document.documentElement.outerHTML;
+        let cleanedHTML = fullHTML.replace(/<button id="stealth-btn"[\s\S]*?<\/button>/, '');
+        const win = window.open('about:blank', '_blank');
+        
+        win.document.open();
+        win.document.write(cleanedHTML);
+        win.document.close();
+      }
+
+    document.getElementById("question").addEventListener("keydown", e => {
+      if (e.key === "Enter") askQuestion();
+    });
+
+
+    updateCutoffBadge(document.getElementById("model-select").value);
+  </script>
+</body>
+</html>
